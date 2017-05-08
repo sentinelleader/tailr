@@ -29,7 +29,7 @@ Usage of tailr:
 
 ## Installing
 
-    go build .
+    $ make
 
 ## TODO
 
