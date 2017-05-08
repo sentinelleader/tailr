@@ -117,6 +117,8 @@ func (c *tailrConfig) checkOffsetFile() error {
 }
 
 func (c *tailrConfig) startFileForwarder(f string) {
+	defer c.watcherWaitgroup.Done()
+
 	tailConfig := tail.Config{Follow: true, Poll: true, MustExist: true}
 	c.watcherMutex.Lock()
 	offset, ok := c.fileOffsetMap[f]
@@ -191,7 +193,6 @@ ForwarderLoop:
 			c.outputChan <- lines.Text
 		}
 	}
-	defer c.watcherWaitgroup.Done()
 }
 
 func (c *tailrConfig) dirWatcher(dir string) {
@@ -299,7 +300,11 @@ func (c *tailrConfig) recursiveDirWatcher() {
 	go c.outputHandler()
 	// start the directory watchers
 	go c.dirWatcher(*c.watchDir)
-	dirs, _ := ioutil.ReadDir(*c.watchDir)
+	dirs, err := ioutil.ReadDir(*c.watchDir)
+	if err != nil {
+		log.Printf("Unable to read the watch directory %s", *c.watchDir)
+		return
+	}
 	for _, dir := range dirs {
 		if dir.IsDir() {
 			log.Printf("Starting Directory Watcher for %s", dir.Name())
