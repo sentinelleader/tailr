@@ -51,7 +51,7 @@ OutputHandlerLoop:
 	for {
 		select {
 		case n := <-c.noopOutputChan:
-			log.Println(n)
+			fmt.Println(n)
 		case o := <-c.outputChan:
 			fmt.Fprintf(c.conn, o+"\n")
 		case <-c.Dying():
@@ -78,7 +78,10 @@ func (c *tailrConfig) shutdownHandler() {
 	log.Println("Received Shutdown signal, triggering exit ...")
 	// Notify the Tail that we are going to stop
 	c.Kill(nil)
-	defer close(sigChan)
+	defer func() {
+		close(sigChan)
+		c.watcherWaitgroup.Done()
+	}()
 }
 
 func (c *tailrConfig) updateOffsetFile() {
@@ -284,6 +287,7 @@ DirWatchLoop:
 }
 
 func (c *tailrConfig) recursiveDirWatcher() {
+	defer c.watcherWaitgroup.Done()
 	if !*c.noop {
 		// start the output server connection
 		var err error
@@ -295,16 +299,23 @@ func (c *tailrConfig) recursiveDirWatcher() {
 			panic(errors.New(fmt.Sprintf("Unable to connect to Server %s on Port %s", *c.server, *c.port)))
 		}
 	}
-	c.watcherWaitgroup.Add(2)
-	// start the output handler
-	go c.outputHandler()
-	// start the directory watchers
-	go c.dirWatcher(*c.watchDir)
 	dirs, err := ioutil.ReadDir(*c.watchDir)
 	if err != nil {
 		log.Printf("Unable to read the watch directory %s", *c.watchDir)
 		return
 	}
+
+	c.watcherWaitgroup.Add(3)
+
+	// Start the signal handler
+	go c.shutdownHandler()
+
+	// start the output handler
+	go c.outputHandler()
+
+	// start the directory watchers
+	go c.dirWatcher(*c.watchDir)
+
 	for _, dir := range dirs {
 		if dir.IsDir() {
 			log.Printf("Starting Directory Watcher for %s", dir.Name())
@@ -313,5 +324,4 @@ func (c *tailrConfig) recursiveDirWatcher() {
 			go c.dirWatcher(path.Join(*c.watchDir, dir.Name()))
 		}
 	}
-	defer c.watcherWaitgroup.Done()
 }

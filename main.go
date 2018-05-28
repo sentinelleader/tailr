@@ -30,9 +30,6 @@ func main() {
 	// Start the recursive Directory watcher
 	go config.recursiveDirWatcher()
 
-	// Start the signal handler
-	go config.shutdownHandler()
-
 	// Wait for the goroutines to finish
 	config.watcherWaitgroup.Wait()
 
