@@ -138,7 +138,7 @@ func (c *tailrConfig) startFileForwarder(f string) {
 	fileWatcher := watch.NewPollingFileWatcher(f)
 	fi, err := os.Stat(f)
 	if err != nil {
-		log.Println("Failed to collect file stat for file %s", f)
+		log.Printf("Failed to collect file stat for file %s", f)
 		return
 	}
 	size := fi.Size()
@@ -166,7 +166,7 @@ ForwarderLoop:
 			c.watcherMutex.Lock()
 			c.fileOffsetMap[f] = offset
 			c.watcherMutex.Unlock()
-			log.Printf("offet updated for file %v", f)
+			log.Printf("offset updated for file %v", f)
 		case <-fileChange.Deleted:
 			log.Printf(
 				"Stopping File Forwarder for %v as the file was removed",

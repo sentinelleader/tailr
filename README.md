@@ -35,4 +35,3 @@ Usage of tailr:
 
 * Support Bazel build
 * Support to more remote output server like Redis/Elastisearch etc ...
-* Add some go tests
