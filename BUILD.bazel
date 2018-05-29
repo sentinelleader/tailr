@@ -1,0 +1,29 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_binary", "go_library", "go_test")
+
+go_library(
+    name = "forwarder",
+    srcs = [
+        "forwarder.go",
+        "main.go",
+    ],
+    importpath = "github.com/sentinelleader/tailr",
+    visibility = ["//visibility:private"],
+    deps = [
+        "//vendor/github.com/fsnotify/fsnotify:go_default_library",
+        "//vendor/github.com/hpcloud/tail:go_default_library",
+        "//vendor/github.com/hpcloud/tail/watch:go_default_library",
+        "//vendor/gopkg.in/tomb.v1:go_default_library",
+    ],
+)
+
+go_binary(
+    name = "tailr",
+    embed = [":forwarder"],
+    visibility = ["//visibility:public"],
+)
+
+go_test(
+    name = "tailr_test",
+    srcs = ["forwarder_test.go"],
+    embed = [":forwarder"],
+)

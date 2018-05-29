@@ -1,2 +1,7 @@
 # Files to be skipped
+bazel-bin
+bazel-genfiles
+bazel-out
+bazel-tailr
+bazel-testlogs
 tailr

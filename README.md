@@ -31,7 +31,10 @@ Usage of tailr:
 
     $ make
 
+    or
+
+    $ bazel build //:tailr
+
 ## TODO
 
-* Support Bazel build
 * Support to more remote output server like Redis/Elastisearch etc ...
