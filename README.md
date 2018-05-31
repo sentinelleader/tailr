@@ -1,5 +1,7 @@
 # Tailr - A Recursive Log Forwarder
 
+[![Build Status](https://travis-ci.org/sentinelleader/tailr.svg?branch=master)](https://travis-ci.org/sentinelleader/tailr)
+
 `Tailr` watches a folder recursively for files matching a specified pattern. If the file exists it will start reading the file contents and forwards the same in realtime to a remote server. `Tailr` can detect any new files/directories that gets created with in the watching directory. It will automatically start watching all dicrectories and files that gets  created with in the new sub directories. It also automatically stops watching if a file/directory is removed.
 
 `Tailr` also comes with an optional file offset feature where it keeps track of the file offset for each file that it keeps tracks off. If the file offset is enabled and application gets restarted, `Tailr` will start reading the files from where it stopped previously instead of re-reading the file from the begining.
